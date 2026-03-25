@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2D Robot Field Schematic - Cyber Ball</title>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0;">
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-40 -40 680 680" width="80vh" height="80vh">
+    <rect x="0" y="0" width="600" height="600" fill="#a0a0a0" stroke="#333" stroke-width="4" />
+
+    <g stroke="#888" stroke-width="1" stroke-dasharray="5,5">
+        <line x1="100" y1="0" x2="100" y2="600" />
+        <line x1="200" y1="0" x2="200" y2="600" />
+        <line x1="300" y1="0" x2="300" y2="600" />
+        <line x1="400" y1="0" x2="400" y2="600" />
+        <line x1="500" y1="0" x2="500" y2="600" />
+        
+        <line x1="0" y1="100" x2="600" y2="100" />
+        <line x1="0" y1="200" x2="600" y2="200" />
+        <line x1="0" y1="300" x2="600" y2="300" />
+        <line x1="0" y1="400" x2="600" y2="400" />
+        <line x1="0" y1="500" x2="600" y2="500" />
+    </g>
+
+    <g font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#333" text-anchor="middle">
+        <text x="50" y="630">A</text>
+        <text x="150" y="630">B</text>
+        <text x="250" y="630">C</text>
+        <text x="350" y="630">D</text>
+        <text x="450" y="630">E</text>
+        <text x="550" y="630">F</text>
+        <text x="-20" y="555">1</text>
+        <text x="-20" y="455">2</text>
+        <text x="-20" y="355">3</text>
+        <text x="-20" y="255">4</text>
+        <text x="-20" y="155">5</text>
+        <text x="-20" y="55">6</text>
+    </g>
+
+    <line x1="0" y1="300" x2="600" y2="300" stroke="#FFFFFF" stroke-width="4" />
+    <circle cx="300" cy="300" r="100" stroke="#FFFFFF" stroke-width="4" fill="none" />
+
+    <rect x="200" y="0" width="200" height="50" fill="#2a64c5" fill-opacity="0.4" stroke="#2a64c5" stroke-width="4"/>
+    <line x1="200" y1="0" x2="400" y2="50" stroke="#2a64c5" stroke-width="2" opacity="0.4" />
+    <line x1="400" y1="0" x2="200" y2="50" stroke="#2a64c5" stroke-width="2" opacity="0.4" />
+    
+    <rect x="200" y="550" width="200" height="50" fill="#e2231a" fill-opacity="0.4" stroke="#e2231a" stroke-width="4"/>
+    <line x1="200" y1="550" x2="400" y2="600" stroke="#e2231a" stroke-width="2" opacity="0.4" />
+    <line x1="400" y1="550" x2="200" y2="600" stroke="#e2231a" stroke-width="2" opacity="0.4" />
+
+    <rect x="100" y="0" width="100" height="100" fill="none" stroke="#2a64c5" stroke-width="6"/>
+    <rect x="400" y="0" width="100" height="100" fill="none" stroke="#2a64c5" stroke-width="6"/>
+    <rect x="100" y="500" width="100" height="100" fill="none" stroke="#e2231a" stroke-width="6"/>
+    <rect x="400" y="500" width="100" height="100" fill="none" stroke="#e2231a" stroke-width="6"/>
+
+    <rect x="0" y="250" width="100" height="100" fill="#e2231a" stroke="#000000" stroke-width="8"/>
+    <rect x="500" y="250" width="100" height="100" fill="#2a64c5" stroke="#000000" stroke-width="8"/>
+
+    <g fill="#5c9d58"> 
+        <circle cx="300" cy="250" r="10" />
+        <circle cx="300" cy="280" r="10" />
+        <circle cx="300" cy="310" r="10" />
+        <circle cx="300" cy="340" r="10" />
+    </g>
+    <g fill="#e580a5"> 
+        <circle cx="260" cy="250" r="10" /> <circle cx="340" cy="250" r="10" />
+        <circle cx="260" cy="280" r="10" /> <circle cx="340" cy="280" r="10" />
+        <circle cx="260" cy="310" r="10" /> <circle cx="340" cy="310" r="10" />
+        <circle cx="260" cy="340" r="10" /> <circle cx="340" cy="340" r="10" />
+    </g>
+
+    <circle cx="35" cy="80" r="10" fill="#e580a5" />
+    <circle cx="35" cy="140" r="10" fill="#5c9d58" />
+    <circle cx="35" cy="200" r="10" fill="#e580a5" />
+    <circle cx="35" cy="400" r="10" fill="#e580a5" />
+    <circle cx="35" cy="460" r="10" fill="#5c9d58" />
+    <circle cx="35" cy="520" r="10" fill="#e580a5" />
+
+    <circle cx="565" cy="80" r="10" fill="#e580a5" />
+    <circle cx="565" cy="140" r="10" fill="#5c9d58" />
+    <circle cx="565" cy="200" r="10" fill="#e580a5" />
+    <circle cx="565" cy="400" r="10" fill="#e580a5" />
+    <circle cx="565" cy="460" r="10" fill="#5c9d58" />
+    <circle cx="565" cy="520" r="10" fill="#e580a5" />
+
+    <g font-family="Arial, sans-serif" font-weight="bold" text-anchor="middle">
+        
+        <text x="300" y="30" font-size="14" fill="#ffffff">Blue Alliance Cyber-Goal</text>
+        <text x="300" y="580" font-size="14" fill="#ffffff">Red Alliance Cyber-Goal</text>
+
+        <text x="50" y="295" font-size="12" fill="#ffffff">Red Terminal</text>
+        <text x="50" y="315" font-size="12" fill="#ffffff">Station</text>
+        <text x="550" y="295" font-size="12" fill="#ffffff">Blue Terminal</text>
+        <text x="550" y="315" font-size="12" fill="#ffffff">Station</text>
+
+        <text x="150" y="45" font-size="11" fill="#2a64c5">Blue</text>
+        <text x="150" y="65" font-size="11" fill="#2a64c5">Neutralization</text>
+        <text x="450" y="45" font-size="11" fill="#2a64c5">Blue</text>
+        <text x="450" y="65" font-size="11" fill="#2a64c5">Neutralization</text>
+
+        <text x="150" y="545" font-size="11" fill="#e2231a">Red</text>
+        <text x="150" y="565" font-size="11" fill="#e2231a">Neutralization</text>
+        <text x="450" y="545" font-size="11" fill="#e2231a">Red</text>
+        <text x="450" y="565" font-size="11" fill="#e2231a">Neutralization</text>
+
+        <text x="300" y="215" font-size="18" fill="#333333">Central Neutral Zone</text>
+        
+    </g>
+
+</svg>
+
+</body>
+</html>
