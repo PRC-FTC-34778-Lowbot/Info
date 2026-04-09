@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTC Pit Interview Scoring</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141414 0%, #3a3a3a 50%, #141414 100%);
+            color: #ecf0f1; margin: 0; padding: 20px; min-height: 100vh;
+            display: flex; justify-content: center;
+        }
+        
+        .container {
+            background: linear-gradient(145deg, #242424, #1a1a1a); padding: 25px; border-radius: 15px;
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.8);
+            border: 1px solid #444; max-width: 850px; width: 100%; position: relative;
+        }
+
+        h1 { text-align: center; color: #f1c40f; text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-size: 26px; margin-top: 0;}
+        
+        /* --- Top Navigation --- */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .nav-btn {
+            flex: 1; padding: 12px; font-size: 16px; font-weight: bold; cursor: pointer;
+            border: none; border-radius: 8px; color: white; transition: 0.2s; background: #333;
+        }
+        .nav-btn.active { background: linear-gradient(145deg, #3498db, #2980b9); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+        /* --- Team Input --- */
+        .team-input-group {
+            background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px; border: 1px solid #555;
+            margin-bottom: 25px; display: flex; gap: 15px;
+        }
+        .team-input-group input {
+            flex: 1; padding: 15px; border-radius: 8px; border: 2px solid #3498db; background: #111; 
+            color: #f1c40f; font-size: 18px; font-weight: bold; text-align: center; outline: none;
+        }
+        .team-input-group input:focus { border-color: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+
+        /* --- Scoring Sections --- */
+        .section {
+            background-color: rgba(0, 0, 0, 0.3); margin-bottom: 20px; padding: 20px; 
+            border: 1px solid #555; border-radius: 10px; transition: border-color 0.3s;
+        }
+        .section:hover { border-color: #3498db; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 15px;
+        }
+        .section-title { font-size: 18px; color: #3498db; margin: 0; font-weight: bold; }
+        .section-total { font-size: 20px; font-weight: bold; color: #2ecc71; background: rgba(46,204,113,0.1); padding: 5px 15px; border-radius: 8px; border: 1px solid #2ecc71;}
+
+        /* --- Sub-Criteria Rows --- */
+        .sub-criterion {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px;
+            margin-bottom: 10px; border: 1px solid #444;
+        }
+        .sub-desc { flex: 1; font-size: 14px; color: #ccc; padding-right: 15px; line-height: 1.5; }
+        .highlight { color: #f1c40f; font-weight: bold; }
+        
+        /* --- Score Controls (Small) --- */
+        .score-control-sm {
+            display: flex; align-items: center; gap: 8px; background: #111; padding: 4px; border-radius: 6px; border: 1px solid #555;
+        }
+        .score-control-sm button {
+            width: 30px; height: 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; transition: 0.2s;
+        }
+        .btn-minus-sm { background: linear-gradient(145deg, #e74c3c, #c0392b); }
+        .btn-plus-sm { background: linear-gradient(145deg, #2ecc71, #27ae60); }
+        .score-control-sm button:active { transform: translateY(2px); }
+        .score-input-sm {
+            width: 35px; height: 30px; text-align: center; font-size: 18px; font-weight: bold;
+            border: none; background: transparent; color: #f1c40f;
+        }
+
+        /* --- Total & Submit --- */
+        .total-container {
+            background: linear-gradient(145deg, #f39c12, #d35400); color: #fff; text-align: center;
+            padding: 15px 25px; border-radius: 10px; position: sticky; bottom: 15px; z-index: 100;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.6); border: 1px solid #e67e22;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .total-title { font-size: 18px; font-weight: bold; text-transform: uppercase; }
+        .total-score { font-size: 36px; font-weight: bold; }
+
+        .btn-submit {
+            background: linear-gradient(145deg, #27ae60, #2ecc71); color: white; width: 100%;
+            margin-top: 20px; padding: 15px; font-size: 18px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: bold; text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .btn-submit:active { transform: translateY(2px); }
+
+        /* --- Summary Dashboard (Leaderboard) --- */
+        #summaryView { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #333; }
+        th { background: #2c3e50; color: #3498db; font-weight: bold; font-size: 16px;}
+        tr:nth-child(1) td { color: #f1c40f; font-weight: bold; background: rgba(241, 196, 15, 0.1);} 
+        tr:nth-child(2) td { color: #bdc3c7; font-weight: bold; background: rgba(189, 195, 199, 0.05);} 
+        tr:nth-child(3) td { color: #cd7f32; font-weight: bold; background: rgba(205, 127, 50, 0.05);} 
+        tr:hover { background: #222; }
+        .text-left { text-align: left; }
+        .empty-msg { text-align: center; color: #7f8c8d; padding: 30px; font-style: italic; }
+        
+        .btn-clear {
+            background: linear-gradient(145deg, #c0392b, #e74c3c); color: white; width: 100%;
+            margin-top: 30px; padding: 15px; font-size: 16px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .btn-clear:active { transform: translateY(2px); }
+
+        @media (max-width: 650px) {
+            .team-input-group { flex-direction: column; }
+            .sub-criterion { flex-direction: column; align-items: stretch; gap: 10px; }
+            .score-control-sm { justify-content: center; padding: 8px;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📝 FTC Pit Interview Scoring</h1>
+
+    <div class="nav-tabs">
+        <button class="nav-btn active" id="btnTabScoring" onclick="switchTab('scoring')">✍️ ประเมินทีม (Scoring)</button>
+        <button class="nav-btn" id="btnTabSummary" onclick="switchTab('summary')">📊 สรุปคะแนนรวม (Leaderboard)</button>
+    </div>
+
+    <div id="scoringView">
+        <div class="team-input-group">
+            <input type="number" id="teamNumber" placeholder="หมายเลขทีม (Team #)">
+            <input type="text" id="teamName" placeholder="ชื่อทีม (Team Name)">
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">1. การออกแบบและวิศวกรรม (Max 20)</h2>
+                <div class="section-total"><span id="sec1_total">0</span> / 20</div>
+            </div>
+            
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">นวัตกรรม (7):</span> มีกลไกโดดเด่น แปลกใหม่ หรือแก้ปัญหาได้ชาญฉลาด</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s1_1', -1, 7)">-</button>
+                    <input type="number" id="s1_1" class="score-input-sm" value="0" onchange="validateSubScore('s1_1', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s1_1', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">ความแข็งแรง (7):</span> โครงสร้างทนทาน เก็บสายไฟเรียบร้อย ปลอดภัยตามกฎ</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s1_2', -1, 7)">-</button>
+                    <input type="number" id="s1_2" class="score-input-sm" value="0" onchange="validateSubScore('s1_2', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s1_2', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">กลยุทธ์ (6):</span> สอดคล้องกับแผนการเล่น และมีเหตุผลในการเลือกใช้วัสดุชัดเจน</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s1_3', -1, 6)">-</button>
+                    <input type="number" id="s1_3" class="score-input-sm" value="0" onchange="validateSubScore('s1_3', 6)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s1_3', 1, 6)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">2. การเขียนโปรแกรมและควบคุม (Max 20)</h2>
+                <div class="section-total"><span id="sec2_total">0</span> / 20</div>
+            </div>
+            
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">Autonomous (8):</span> ทำงานอัตโนมัติแม่นยำ ประยุกต์ใช้เซนเซอร์ได้ดีเยี่ยม</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s2_1', -1, 8)">-</button>
+                    <input type="number" id="s2_1" class="score-input-sm" value="0" onchange="validateSubScore('s2_1', 8)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s2_1', 1, 8)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">TeleOp (6):</span> โค้ดช่วยอำนวยความสะดวกผู้ขับ (เช่น ระบบ Macro อัตโนมัติ)</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s2_2', -1, 6)">-</button>
+                    <input type="number" id="s2_2" class="score-input-sm" value="0" onchange="validateSubScore('s2_2', 6)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s2_2', 1, 6)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">ความเข้าใจ (6):</span> อธิบายลอจิกของโค้ด และโครงสร้างโปรแกรมได้ชัดเจน</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s2_3', -1, 6)">-</button>
+                    <input type="number" id="s2_3" class="score-input-sm" value="0" onchange="validateSubScore('s2_3', 6)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s2_3', 1, 6)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">3. กระบวนการแก้ปัญหาและเอกสาร (Max 20)</h2>
+                <div class="section-total"><span id="sec3_total">0</span> / 20</div>
+            </div>
+            
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">กระบวนการพัฒนา (7):</span> เล่าวิวัฒนาการของหุ่นยนต์ (Iterations) และการทดสอบได้</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s3_1', -1, 7)">-</button>
+                    <input type="number" id="s3_1" class="score-input-sm" value="0" onchange="validateSubScore('s3_1', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s3_1', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">การแก้ปัญหา (7):</span> อธิบายวิธีแก้ปัญหาและอุปสรรคได้อย่างเป็นเหตุเป็นผล</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s3_2', -1, 7)">-</button>
+                    <input type="number" id="s3_2" class="score-input-sm" value="0" onchange="validateSubScore('s3_2', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s3_2', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">เอกสารประกอบ (6):</span> นำสมุดบันทึก งาน CAD หรือรูปภาพ มาประกอบการอธิบายได้ดี</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s3_3', -1, 6)">-</button>
+                    <input type="number" id="s3_3" class="score-input-sm" value="0" onchange="validateSubScore('s3_3', 6)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s3_3', 1, 6)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">4. การทำงานเป็นทีมและค่านิยม (Max 20)</h2>
+                <div class="section-total"><span id="sec4_total">0</span> / 20</div>
+            </div>
+            
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">การมีส่วนร่วม (7):</span> สมาชิกทุกคนมีบทบาทนำเสนอ เคารพซึ่งกันและกัน ไม่ทิ้งใครไว้ข้างหลัง</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s4_1', -1, 7)">-</button>
+                    <input type="number" id="s4_1" class="score-input-sm" value="0" onchange="validateSubScore('s4_1', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s4_1', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">การบริหาร (7):</span> แบ่งหน้าที่ชัดเจน มีวิธีบริหารจัดการเวลาและแผนงานได้ดี</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s4_2', -1, 7)">-</button>
+                    <input type="number" id="s4_2" class="score-input-sm" value="0" onchange="validateSubScore('s4_2', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s4_2', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">Gracious Professionalism (6):</span> ช่วยเหลือทีมอื่น แบ่งปันความรู้ มีสปิริตที่ดีต่อส่วนรวม</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s4_3', -1, 6)">-</button>
+                    <input type="number" id="s4_3" class="score-input-sm" value="0" onchange="validateSubScore('s4_3', 6)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s4_3', 1, 6)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">5. ทักษะการสื่อสารและหน้า Pit (Max 20)</h2>
+                <div class="section-total"><span id="sec5_total">0</span> / 20</div>
+            </div>
+            
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">ความมั่นใจ (7):</span> นำเสนอได้ลื่นไหล เสียงดังฟังชัด อายคอนแทคดี กระตือรือร้น</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s5_1', -1, 7)">-</button>
+                    <input type="number" id="s5_1" class="score-input-sm" value="0" onchange="validateSubScore('s5_1', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s5_1', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">การตอบคำถาม (7):</span> ตอบคำถามได้ตรงประเด็น กระชับ และเป็นมืออาชีพ</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s5_2', -1, 7)">-</button>
+                    <input type="number" id="s5_2" class="score-input-sm" value="0" onchange="validateSubScore('s5_2', 7)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s5_2', 1, 7)">+</button>
+                </div>
+            </div>
+            <div class="sub-criterion">
+                <div class="sub-desc"><span class="highlight">บรรยากาศ Pit (6):</span> จัดแต่ง Pit ได้น่าสนใจ สะท้อนเอกลักษณ์ มีสื่อประกอบชัดเจน</div>
+                <div class="score-control-sm">
+                    <button class="btn-minus-sm" onclick="changeSubScore('s5_3', -1, 6)">-</button>
+                    <input type="number" id="s5_3" class="score-input-sm" value="0" onchange="validateSubScore('s5_3', 6)">
+                    <button class="btn-plus-sm" onclick="changeSubScore('s5_3', 1, 6)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="total-container">
+            <div class="total-title">คะแนนรวมทั้งหมด</div>
+            <div class="total-score"><span id="totalDisplay">0</span> <span style="font-size: 20px;">/ 100</span></div>
+        </div>
+
+        <button class="btn-submit" onclick="submitScore()">💾 ยืนยันการประเมินและบันทึกเข้าสู่ระบบ</button>
+    </div>
+
+    <div id="summaryView">
+        <h2>📊 สรุปอันดับคะแนน Pit Interview</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>อันดับ</th>
+                    <th>หมายเลขทีม</th>
+                    <th class="text-left">ชื่อทีม</th>
+                    <th>คะแนนรวม (100)</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+                <tr><td colspan="4" class="empty-msg">กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+        </table>
+
+        <button class="btn-clear" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด (Clear All Data)</button>
+    </div>
+
+</div>
+
+<script>
+    // 1. ดึงข้อมูลจาก Local Storage ทันทีเมื่อเปิดหน้าเว็บ (ถ้าไม่มีให้เป็น Array ว่าง)
+    let evaluatedTeams = JSON.parse(localStorage.getItem('ftcPitScores')) || [];
+
+    // วาดตาราง Leaderboard ทันทีถ้ามีข้อมูลค้างอยู่
+    window.onload = function() {
+        renderLeaderboard();
+    };
+
+    // สลับหน้าจอ Scoring / Summary
+    function switchTab(tabName) {
+        if (tabName === 'scoring') {
+            document.getElementById('scoringView').style.display = 'block';
+            document.getElementById('summaryView').style.display = 'none';
+            document.getElementById('btnTabScoring').classList.add('active');
+            document.getElementById('btnTabSummary').classList.remove('active');
+        } else {
+            document.getElementById('scoringView').style.display = 'none';
+            document.getElementById('summaryView').style.display = 'block';
+            document.getElementById('btnTabScoring').classList.remove('active');
+            document.getElementById('btnTabSummary').classList.add('active');
+            renderLeaderboard();
+        }
+    }
+
+    // กดปุ่ม + / - สำหรับคะแนนย่อย
+    function changeSubScore(id, delta, maxVal) {
+        let inputField = document.getElementById(id);
+        let currentValue = parseInt(inputField.value) || 0;
+        let newValue = currentValue + delta;
+
+        if (newValue >= 0 && newValue <= maxVal) {
+            inputField.value = newValue;
+            calculateTotal();
+        }
+    }
+
+    // ตรวจสอบการพิมพ์ตัวเลขลงไปตรงๆ (ห้ามเกิน Max)
+    function validateSubScore(id, maxVal) {
+        let inputField = document.getElementById(id);
+        let value = parseInt(inputField.value);
+
+        if (isNaN(value) || value < 0) {
+            inputField.value = 0;
+        } else if (value > maxVal) {
+            inputField.value = maxVal;
+        }
+        calculateTotal();
+    }
+
+    // คำนวณคะแนนรวมทั้งหมด
+    function calculateTotal() {
+        let grandTotal = 0;
+
+        for (let i = 1; i <= 5; i++) {
+            let sectionTotal = 0;
+            for (let j = 1; j <= 3; j++) {
+                let subScore = parseInt(document.getElementById(`s${i}_${j}`).value) || 0;
+                sectionTotal += subScore;
+            }
+            document.getElementById(`sec${i}_total`).innerText = sectionTotal;
+            grandTotal += sectionTotal;
+        }
+
+        document.getElementById('totalDisplay').innerText = grandTotal;
+        return grandTotal;
+    }
+
+    // บันทึกและส่งข้อมูลเข้า Leaderboard + Local Storage
+    function submitScore() {
+        let teamNum = document.getElementById('teamNumber').value.trim();
+        let teamName = document.getElementById('teamName').value.trim();
+        let totalScore = calculateTotal();
+
+        if (teamNum === "" || teamName === "") {
+            alert("⚠️ กรุณากรอกหมายเลขทีมและชื่อทีมให้ครบถ้วนก่อนบันทึกครับ");
+            document.getElementById('teamNumber').focus();
+            return;
+        }
+
+        if (confirm(`ยืนยันการบันทึกคะแนน ${totalScore} คะแนน สำหรับทีม [${teamNum}] ${teamName}?`)) {
+            
+            // ลบของเก่าออกถ้าพิมพ์เลขทีมซ้ำ
+            evaluatedTeams = evaluatedTeams.filter(t => t.number !== teamNum);
+
+            evaluatedTeams.push({
+                number: teamNum,
+                name: teamName,
+                score: totalScore
+            });
+
+            evaluatedTeams.sort((a, b) => b.score - a.score);
+
+            // 💾 บันทึกข้อมูลลง Local Storage (เพื่อให้ข้อมูลอยู่ทนแม้กด Refresh)
+            localStorage.setItem('ftcPitScores', JSON.stringify(evaluatedTeams));
+
+            alert(`✅ บันทึกคะแนนสำเร็จ! นำเข้าสู่หน้า Leaderboard แล้ว`);
+            
+            // ล้างฟอร์ม
+            document.getElementById('teamNumber').value = '';
+            document.getElementById('teamName').value = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                for (let j = 1; j <= 3; j++) {
+                    document.getElementById(`s${i}_${j}`).value = 0;
+                }
+            }
+            calculateTotal();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    // สร้างตาราง Leaderboard
+    function renderLeaderboard() {
+        const tbody = document.getElementById('leaderboardBody');
+        tbody.innerHTML = '';
+
+        if (evaluatedTeams.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">ยังไม่มีข้อมูลการประเมินทีม</td></tr>';
+            return;
+        }
+
+        evaluatedTeams.forEach((team, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${team.number}</td>
+                <td class="text-left">${team.name}</td>
+                <td style="font-size: 18px;">${team.score}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ฟังก์ชันล้างข้อมูลทั้งหมดในเครื่อง
+    function clearAllData() {
+        if (confirm("⚠️ คำเตือน: คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลคะแนนของทุกทีม?\n(การกระทำนี้ไม่สามารถย้อนกลับได้)")) {
+            // ลบออกจาก Local Storage
+            localStorage.removeItem('ftcPitScores');
+            // รีเซ็ตตัวแปร Array
+            evaluatedTeams = [];
+            // วาดตารางใหม่ (ให้ว่างเปล่า)
+            renderLeaderboard();
+            alert("🗑️ ล้างข้อมูลทั้งหมดเรียบร้อยแล้ว");
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alliance League Manager - 4 Teams</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141414 0%, #3a3a3a 50%, #141414 100%);
+            color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container {
+            background: linear-gradient(145deg, #242424, #1a1a1a);
+            padding: 25px 35px; border-radius: 15px;
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.8);
+            border: 1px solid #444; 
+            max-width: 1200px; /* ขยายความกว้างเพื่อรองรับ 2 คอลัมน์ */
+            width: 100%;
+        }
+
+        h1, h2 { text-align: center; color: #f1c40f; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        h1 { margin-bottom: 30px; }
+        h2 { font-size: 20px; color: #3498db; margin-top: 0; border-bottom: 2px solid #555; padding-bottom: 10px;}
+
+        /* --- Section: Team Input --- */
+        .setup-section {
+            background: rgba(0,0,0,0.3); padding: 30px; border-radius: 10px; border: 1px solid #555;
+            margin: 0 auto 20px auto; max-width: 800px;
+        }
+        .team-inputs {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;
+        }
+        .team-inputs input {
+            padding: 12px; border-radius: 5px; border: 1px solid #555; background: #222; color: #fff;
+            font-size: 16px; width: 90%;
+        }
+        .btn-action {
+            width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer;
+            border: none; border-radius: 8px; color: white; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .btn-random { background: linear-gradient(145deg, #8e44ad, #9b59b6); }
+        .btn-random:active { transform: translateY(2px); }
+
+        /* --- Layout: Left & Right --- */
+        .league-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .left-panel {
+            flex: 1; /* สัดส่วนฝั่งซ้าย */
+            min-width: 0;
+        }
+        .right-panel {
+            flex: 1.2; /* ให้ฝั่งตารางคะแนนกว้างกว่านิดหน่อย */
+            min-width: 0;
+        }
+
+        /* --- Section: Matches (Alliance) --- */
+        .match-list { display: flex; flex-direction: column; gap: 15px; }
+        .match-card {
+            display: flex; justify-content: space-between; align-items: stretch;
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f); padding: 15px;
+            border-radius: 8px; border: 1px solid #444; gap: 10px;
+        }
+        
+        .alliance-box {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 15px;
+        }
+        .red-alliance { background: rgba(231, 76, 60, 0.1); border-left: 5px solid #e74c3c; color: #ff7675;}
+        .blue-alliance { background: rgba(52, 152, 219, 0.1); border-right: 5px solid #3498db; color: #74b9ff;}
+        .team-row { padding: 4px 0; }
+        .team-row:first-child { border-bottom: 1px dashed rgba(255,255,255,0.2); }
+
+        .score-input-group { display: flex; align-items: center; gap: 8px; justify-content: center; }
+        .score-input-group input {
+            width: 50px; height: 45px; text-align: center; font-size: 20px; font-weight: bold;
+            border-radius: 5px; border: 1px solid #555; background: #111; color: #fff;
+        }
+        .red-input { border-bottom: 3px solid #e74c3c !important; }
+        .blue-input { border-bottom: 3px solid #3498db !important; }
+        .vs-text { font-size: 14px; color: #7f8c8d; font-weight: bold; }
+
+        /* --- Section: League Table --- */
+        .rule-note { text-align: center; font-size: 12px; color: #aaa; margin-top: -5px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #333; }
+        th { background: #2c3e50; color: #3498db; font-weight: bold; font-size: 14px;}
+        tr:nth-child(1) td { color: #2ecc71; font-weight: bold; background: rgba(46, 204, 113, 0.1);} 
+        tr:hover { background: #222; }
+        .text-left { text-align: left; }
+
+        .reset-match-btn { background: linear-gradient(145deg, #c0392b, #8e44ad); margin-top: 30px; }
+
+        /* สำหรับหน้าจอขนาดเล็กกว่า 950px (แท็บเล็ตแนวตั้ง/มือถือ) */
+        @media (max-width: 950px) {
+            .league-layout { flex-direction: column; }
+            .left-panel, .right-panel { width: 100%; flex: none; }
+            .team-inputs { grid-template-columns: 1fr; }
+            .match-card { flex-direction: column; }
+            .alliance-box { border: none; border-bottom: 2px solid; }
+            .red-alliance { border-bottom-color: #e74c3c; border-left: none; }
+            .blue-alliance { border-bottom-color: #3498db; border-right: none; }
+            .score-input-group { padding: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏆 Alliance League Manager (2v2)</h1>
+
+    <div class="setup-section" id="setupSection">
+        <p style="text-align: center; color: #aaa; margin-top: 0; margin-bottom: 20px;">กรอกชื่อทีมทั้ง 4 ทีม เพื่อสร้างตารางแข่งแบบพบกันหมด 2v2</p>
+        <div class="team-inputs">
+            <input type="text" id="t1" placeholder="ชื่อทีมที่ 1" value="Team A">
+            <input type="text" id="t2" placeholder="ชื่อทีมที่ 2" value="Team B">
+            <input type="text" id="t3" placeholder="ชื่อทีมที่ 3" value="Team C">
+            <input type="text" id="t4" placeholder="ชื่อทีมที่ 4" value="Team D">
+        </div>
+        <button class="btn-action btn-random" onclick="generateLeague()">🎲 สุ่มจับคู่ Alliance และเริ่มแข่งขัน</button>
+    </div>
+
+    <div id="leagueSection" style="display: none;">
+        
+        <div class="league-layout">
+            <div class="left-panel">
+                <h2>🤖 แมตช์การแข่งขัน</h2>
+                <div class="match-list" id="matchList">
+                    </div>
+            </div>
+
+            <div class="right-panel">
+                <h2>📊 ตารางคะแนน League</h2>
+                <p class="rule-note">*ชนะ 2 แต้ม | เสมอ 1 แต้ม | แพ้ 0 แต้ม<br>(หากแต้มเท่า ตัดสินด้วย ยิงได้ (GF) ➡️ ผลต่าง (GD))</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="text-left">ทีม (Team)</th>
+                            <th>แข่ง<br><small>(P)</small></th>
+                            <th>ชนะ<br><small>(W)</small></th>
+                            <th>เสมอ<br><small>(D)</small></th>
+                            <th>แพ้<br><small>(L)</small></th>
+                            <th>ได้<br><small>(GF)</small></th>
+                            <th>เสีย<br><small>(GA)</small></th>
+                            <th>ผลต่าง<br><small>(GD)</small></th>
+                            <th>คะแนน<br><small>(Pts)</small></th>
+                        </tr>
+                    </thead>
+                    <tbody id="leagueTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <button class="btn-action btn-random reset-match-btn" onclick="location.reload()">🔄 จบทัวร์นาเมนต์ (เริ่มจัดสายใหม่)</button>
+    </div>
+</div>
+
+<script>
+    let teams = [];
+    let matches = [];
+
+    function generateLeague() {
+        let t1 = document.getElementById('t1').value.trim() || "Team 1";
+        let t2 = document.getElementById('t2').value.trim() || "Team 2";
+        let t3 = document.getElementById('t3').value.trim() || "Team 3";
+        let t4 = document.getElementById('t4').value.trim() || "Team 4";
+
+        teams = [
+            { id: 0, name: t1 }, { id: 1, name: t2 }, 
+            { id: 2, name: t3 }, { id: 3, name: t4 }
+        ];
+
+        // สุ่มสลับตำแหน่งทีมก่อน
+        teams.sort(() => Math.random() - 0.5);
+
+        // จับคู่การแข่งขันพบกันหมดแบบคู่ Alliance (รวม 3 แมตช์)
+        matches = [
+            { red1: teams[0], red2: teams[1], blue1: teams[2], blue2: teams[3], redScore: null, blueScore: null },
+            { red1: teams[0], red2: teams[2], blue1: teams[1], blue2: teams[3], redScore: null, blueScore: null },
+            { red1: teams[0], red2: teams[3], blue1: teams[1], blue2: teams[2], redScore: null, blueScore: null }
+        ];
+
+        document.getElementById('setupSection').style.display = 'none';
+        document.getElementById('leagueSection').style.display = 'block';
+
+        renderMatches();
+        calculateStandings();
+    }
+
+    function renderMatches() {
+        const matchListDiv = document.getElementById('matchList');
+        matchListDiv.innerHTML = '';
+
+        matches.forEach((match, index) => {
+            let card = document.createElement('div');
+            card.className = 'match-card';
+            card.innerHTML = `
+                <div class="alliance-box red-alliance">
+                    <div class="team-row">${match.red1.name}</div>
+                    <div class="team-row">${match.red2.name}</div>
+                </div>
+                <div class="score-input-group">
+                    <input type="number" class="red-input" min="0" placeholder="-" onchange="updateScore(${index}, 'red', this.value)">
+                    <span class="vs-text">VS</span>
+                    <input type="number" class="blue-input" min="0" placeholder="-" onchange="updateScore(${index}, 'blue', this.value)">
+                </div>
+                <div class="alliance-box blue-alliance">
+                    <div class="team-row">${match.blue1.name}</div>
+                    <div class="team-row">${match.blue2.name}</div>
+                </div>
+            `;
+            matchListDiv.appendChild(card);
+        });
+    }
+
+    function updateScore(matchIndex, allianceSide, value) {
+        matches[matchIndex][allianceSide + 'Score'] = value === "" ? null : parseInt(value);
+        calculateStandings();
+    }
+
+    function calculateStandings() {
+        let standings = {};
+        teams.forEach(t => {
+            standings[t.id] = { 
+                name: t.name, played: 0, won: 0, drawn: 0, lost: 0, 
+                gf: 0, ga: 0, gd: 0, pts: 0 
+            };
+        });
+
+        // คำนวณผลการแข่งขัน
+        matches.forEach(m => {
+            if (m.redScore !== null && m.blueScore !== null) {
+                let r1 = standings[m.red1.id]; let r2 = standings[m.red2.id];
+                let b1 = standings[m.blue1.id]; let b2 = standings[m.blue2.id];
+
+                r1.played++; r2.played++; 
+                b1.played++; b2.played++;
+
+                r1.gf += m.redScore; r1.ga += m.blueScore;
+                r2.gf += m.redScore; r2.ga += m.blueScore;
+
+                b1.gf += m.blueScore; b1.ga += m.redScore;
+                b2.gf += m.blueScore; b2.ga += m.redScore;
+
+                if (m.redScore > m.blueScore) {
+                    r1.won++; r2.won++;
+                    r1.pts += 2; r2.pts += 2;
+                    b1.lost++; b2.lost++;
+                } else if (m.redScore < m.blueScore) {
+                    b1.won++; b2.won++;
+                    b1.pts += 2; b2.pts += 2;
+                    r1.lost++; r2.lost++;
+                } else {
+                    r1.drawn++; r2.drawn++;
+                    b1.drawn++; b2.drawn++;
+                    r1.pts += 1; r2.pts += 1;
+                    b1.pts += 1; b2.pts += 1;
+                }
+            }
+        });
+
+        let tableData = Object.values(standings);
+        tableData.forEach(t => t.gd = t.gf - t.ga);
+
+        // เรียงลำดับ: คะแนน -> ประตูได้ -> ผลต่าง
+        tableData.sort((a, b) => {
+            if (b.pts !== a.pts) return b.pts - a.pts; 
+            if (b.gf !== a.gf) return b.gf - a.gf;     
+            return b.gd - a.gd;                        
+        });
+
+        renderTable(tableData);
+    }
+
+    function renderTable(tableData) {
+        const tbody = document.getElementById('leagueTableBody');
+        tbody.innerHTML = '';
+
+        tableData.forEach((t, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="text-left" style="font-weight: bold;">${t.name}</td>
+                <td>${t.played}</td>
+                <td>${t.won}</td>
+                <td>${t.drawn}</td>
+                <td>${t.lost}</td>
+                <td style="color: #3498db; font-weight: bold;">${t.gf}</td>
+                <td>${t.ga}</td>
+                <td style="color: ${t.gd > 0 ? '#2ecc71' : (t.gd < 0 ? '#e74c3c' : '#aaa')};">${t.gd > 0 ? '+'+t.gd : t.gd}</td>
+                <td style="font-size: 18px; font-weight: bold; color: #f1c40f;">${t.pts}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+</script>
+
+</body>
+</html>
