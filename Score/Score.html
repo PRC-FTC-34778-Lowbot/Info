@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Match Score Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141414 0%, #3a3a3a 50%, #141414 100%);
+            color: #ecf0f1; margin: 0; padding: 20px; min-height: 100vh;
+        }
+        .layout-wrapper { display: flex; justify-content: center; align-items: flex-start; gap: 25px; max-width: 1000px; margin: 0 auto; }
+
+        /* ----- Timer Sidebar ----- */
+        .timer-sidebar {
+            background: linear-gradient(145deg, #1e272e, #000000); border: 2px solid #3498db; border-radius: 15px;
+            padding: 20px 15px; width: 250px; text-align: center; position: sticky; top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.8); flex-shrink: 0;
+        }
+        .phase-name { font-size: 18px; color: #3498db; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px;}
+        .timer-display { font-size: 48px; font-weight: bold; color: #e74c3c; font-family: 'Courier New', Courier, monospace; line-height: 1; margin: 10px 0;}
+        .global-time { font-size: 14px; color: #aaa; margin-bottom: 20px; }
+        .timer-controls { display: flex; flex-direction: column; gap: 10px; }
+        .timer-controls button {
+            width: 100%; padding: 10px; font-size: 15px; border: none; border-radius: 5px; cursor: pointer;
+            color: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.4); transition: 0.2s;
+        }
+        .timer-controls button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .btn-start { background: linear-gradient(145deg, #27ae60, #2ecc71); }
+        .btn-pause { background: linear-gradient(145deg, #f39c12, #e67e22); }
+        .btn-reset { background: linear-gradient(145deg, #7f8c8d, #95a5a6); }
+        .btn-test-audio { background: linear-gradient(145deg, #8e44ad, #9b59b6); font-size: 13px !important; margin-top: 10px;}
+
+        /* ----- Score Container ----- */
+        .container {
+            background: linear-gradient(145deg, #242424, #1a1a1a); padding: 25px; border-radius: 15px;
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.8); border: 1px solid #444; max-width: 650px; width: 100%;
+        }
+        h1 { text-align: center; color: #f1c40f; font-size: 24px; margin-top: 0; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        .section { background-color: rgba(0, 0, 0, 0.3); margin-bottom: 20px; padding: 20px; border: 1px solid #555; border-radius: 10px;}
+        .section-title { font-size: 18px; color: #3498db; margin-top: 0; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #555; display: flex; justify-content: space-between; align-items: center;}
+        
+        .control-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 10px 15px; border-radius: 8px; background: linear-gradient(145deg, #2a2a2a, #1f1f1f); border: 1px solid #333;}
+        .control-group.green { border-left: 5px solid #2ecc71; }
+        .control-group.purple { border-left: 5px solid #9b59b6; }
+        
+        .label-text { font-weight: bold; font-size: 15px; color: #fff; }
+        .sub-text { font-size: 12px; color: #f39c12; } .sub-text.normal { color: #aaa; }
+        
+        .counter { display: flex; align-items: center; gap: 15px; }
+        .counter button { width: 35px; height: 35px; font-size: 20px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .counter button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .btn-minus { background: linear-gradient(145deg, #e74c3c, #c0392b); }
+        .btn-plus { background: linear-gradient(145deg, #3498db, #2980b9); }
+        .count-display { font-size: 22px; font-weight: bold; width: 25px; text-align: center; color: #fff; }
+        
+        .endgame-container { display: flex; gap: 15px; flex-wrap: wrap;}
+        .team-box { flex: 1; min-width: 200px; background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; border: 1px solid #444; margin-top: 10px;}
+        .team-title { text-align: center; font-weight: bold; color: #ecf0f1; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #666; }
+        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+        .radio-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; color: #ccc;}
+        .radio-label input { margin-right: 8px; transform: scale(1.2); cursor: pointer; }
+
+        .subtotal-box { margin-top: 15px; background: linear-gradient(145deg, #1abc9c, #16a085); color: #fff; padding: 8px 15px; text-align: right; border-radius: 6px; font-weight: bold; font-size: 15px;}
+        .total-container { background: linear-gradient(145deg, #f39c12, #d35400); color: #fff; text-align: center; padding: 15px; border-radius: 10px; position: sticky; bottom: 15px; z-index: 100; border: 1px solid #e67e22;}
+        .total-title { font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .total-score { font-size: 42px; display: block; margin-top: 5px; font-weight: bold; line-height: 1;}
+        
+        .reset-match-btn { background: linear-gradient(145deg, #c0392b, #8e44ad); color: white; width: 100%; margin-top: 20px; padding: 12px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s;}
+
+        @media (max-width: 850px) {
+            .layout-wrapper { flex-direction: column; align-items: center; }
+            .timer-sidebar { width: 100%; max-width: 650px; position: sticky; top: 0; z-index: 101; margin-bottom: 0; padding: 10px 15px;}
+            .timer-display { font-size: 36px; margin: 5px 0;}
+            .timer-controls { flex-direction: row; justify-content: center; flex-wrap: wrap;}
+            .timer-controls button { width: auto; flex: 1; }
+            .btn-test-audio { width: 100% !important; flex: none !important;}
+        }
+    </style>
+</head>
+<body>
+
+<audio id="matchAudio" src="FTC Sound File.mp3" preload="auto"></audio>
+
+<div class="layout-wrapper">
+    <div class="timer-sidebar">
+        <div id="phaseDisplay" class="phase-name">READY TO START</div>
+        <div id="timeDisplay" class="timer-display">00:30</div>
+        <div id="globalTimeDisplay" class="global-time">เวลาแข่งรวม: 2:38</div>
+        <div class="timer-controls">
+            <button class="btn-start" onclick="startTimer()">▶ เริ่ม / ต่อ</button>
+            <button class="btn-pause" onclick="pauseTimer()">⏸ หยุดพัก</button>
+            <button class="btn-reset" onclick="resetTimer()">🔄 รีเซ็ตเวลา</button>
+            <button class="btn-test-audio" onclick="testAudio()">🔊 เช็คการเชื่อมต่อเสียง</button>
+            <p style="font-size: 11px; color: #7f8c8d; margin-top: 10px;">*ต้องวางไฟล์ FTC Sound File.mp3 ไว้ในโฟลเดอร์เดียวกัน</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>🏆 Soccer Match Score Calculator</h1>
+
+        <div class="section" id="sec-auto">
+            <h2 class="section-title">1. Autonomous (30s) <span style="font-size: 12px; color: #ff7675;">*ยิงรวมกันสูงสุด 6 ลูก</span></h2>
+            <div class="control-group green">
+                <div><div class="label-text">บอลสีเขียว</div><div class="sub-text">ลูกละ 4 คะแนน (x2)</div></div>
+                <div class="counter">
+                    <button class="btn-minus" onclick="updateScore('autoGreen', -1)">-</button>
+                    <span class="count-display" id="val-autoGreen">0</span>
+                    <button class="btn-plus" onclick="updateScore('autoGreen', 1)">+</button>
+                </div>
+            </div>
+            <div class="control-group purple">
+                <div><div class="label-text">บอลสีม่วง</div><div class="sub-text">ลูกละ 2 คะแนน (x2)</div></div>
+                <div class="counter">
+                    <button class="btn-minus" onclick="updateScore('autoPurple', -1)">-</button>
+                    <span class="count-display" id="val-autoPurple">0</span>
+                    <button class="btn-plus" onclick="updateScore('autoPurple', 1)">+</button>
+                </div>
+            </div>
+            <div class="subtotal-box">รวม Autonomous: <span id="sub-auto">0</span> คะแนน</div>
+        </div>
+
+        <div class="section" id="sec-op">
+            <h2 class="section-title">2. Op Mode (90s)</h2>
+            <div class="control-group green">
+                <div><div class="label-text">บอลสีเขียว</div><div class="sub-text normal">ลูกละ 2 คะแนน</div></div>
+                <div class="counter">
+                    <button class="btn-minus" onclick="updateScore('opGreen', -1)">-</button>
+                    <span class="count-display" id="val-opGreen">0</span>
+                    <button class="btn-plus" onclick="updateScore('opGreen', 1)">+</button>
+                </div>
+            </div>
+            <div class="control-group purple">
+                <div><div class="label-text">บอลสีม่วง</div><div class="sub-text normal">ลูกละ 1 คะแนน</div></div>
+                <div class="counter">
+                    <button class="btn-minus" onclick="updateScore('opPurple', -1)">-</button>
+                    <span class="count-display" id="val-opPurple">0</span>
+                    <button class="btn-plus" onclick="updateScore('opPurple', 1)">+</button>
+                </div>
+            </div>
+            <div class="subtotal-box">รวม Op Mode: <span id="sub-op">0</span> คะแนน</div>
+        </div>
+
+        <div class="section" id="sec-end">
+            <h2 class="section-title">3. End Game (30s)</h2>
+            <div class="control-group green">
+                <div><div class="label-text">ยิงบอลสีเขียว (End Game)</div><div class="sub-text normal">ลูกละ 2 คะแนน</div></div>
+                <div class="counter">
+                    <button class="btn-minus" onclick="updateScore('endGreen', -1)">-</button>
+                    <span class="count-display" id="val-endGreen">0</span>
+                    <button class="btn-plus" onclick="updateScore('endGreen', 1)">+</button>
+                </div>
+            </div>
+            <div class="control-group purple">
+                <div><div class="label-text">ยิงบอลสีม่วง (End Game)</div><div class="sub-text normal">ลูกละ 1 คะแนน</div></div>
+                <div class="counter">
+                    <button class="btn-minus" onclick="updateScore('endPurple', -1)">-</button>
+                    <span class="count-display" id="val-endPurple">0</span>
+                    <button class="btn-plus" onclick="updateScore('endPurple', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="endgame-container">
+                <div class="team-box">
+                    <div class="team-title">🤖 หุ่นยนต์ 1 (การจอด)</div>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="t1_parking" value="0" checked onchange="calculateScores()"> ไม่ได้จอด (0)</label>
+                        <label class="radio-label"><input type="radio" name="t1_parking" value="5" onchange="calculateScores()"> จอดบางส่วน (5)</label>
+                        <label class="radio-label"><input type="radio" name="t1_parking" value="10" onchange="calculateScores()"> จอดเต็มตัว (10)</label>
+                    </div>
+                </div>
+                <div class="team-box">
+                    <div class="team-title">🤖 หุ่นยนต์ 2 (การจอด)</div>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="t2_parking" value="0" checked onchange="calculateScores()"> ไม่ได้จอด (0)</label>
+                        <label class="radio-label"><input type="radio" name="t2_parking" value="5" onchange="calculateScores()"> จอดบางส่วน (5)</label>
+                        <label class="radio-label"><input type="radio" name="t2_parking" value="10" onchange="calculateScores()"> จอดเต็มตัว (10)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="subtotal-box">รวม End Game: <span id="sub-end">0</span> คะแนน</div>
+        </div>
+
+        <div class="total-container">
+            <div class="total-title">คะแนนรวม ALLIANCE</div>
+            <span class="total-score" id="totalScoreDisplay">0</span>
+        </div>
+
+        <button class="reset-match-btn" onclick="resetMatch()">Reset and Prepare for Next Match</button>
+    </div>
+</div>
+
+<script>
+    // ---------------- AUDIO SYSTEM (SYNC WITH TIMER) ----------------
+    function testAudio() {
+        let matchAudio = document.getElementById('matchAudio');
+        matchAudio.volume = 0; 
+        matchAudio.play().then(() => {
+            matchAudio.pause();
+            matchAudio.currentTime = 0;
+            matchAudio.volume = 1; 
+            alert("✅ ระบบค้นพบไฟล์เสียง FTC Sound File.mp3 และพร้อมใช้งานแล้วครับ!");
+        }).catch(e => {
+            alert("❌ ไม่พบไฟล์เสียง หรือเบราว์เซอร์บล็อกการเล่น\n\nโปรดตรวจสอบว่าคุณวางไฟล์ชื่อ FTC Sound File.mp3 ไว้ในโฟลเดอร์เดียวกับโปรแกรมแล้ว");
+        });
+    }
+
+    // ---------------- TIMER LOGIC ----------------
+    let timerInterval = null;
+    let matchState = 'STOPPED'; // มี 4 สถานะ: STOPPED, INTRO, RUNNING, PAUSED
+    
+    // ตั้งค่าตัวแปรเวลา
+    let globalTimeLeft = 158; // 2m 38s
+    let phaseTimeLeft = 30;
+    let currentPhaseIndex = 0;
+    
+    // ตั้งค่าดีเลย์ช่วง Intro (Autonomous in 3, 2, 1...)
+    let introDelaySeconds = 5; 
+    let introTimeLeft = introDelaySeconds;
+
+    const phases = [
+        { name: "AUTONOMOUS", duration: 30, color: "#3498db" },
+        { name: "TRANSITION", duration: 8, color: "#f39c12" },
+        { name: "OP MODE", duration: 90, color: "#2ecc71" },
+        { name: "END GAME", duration: 30, color: "#e74c3c" }
+    ];
+
+    function formatTime(seconds) {
+        let m = Math.floor(seconds / 60);
+        let s = seconds % 60;
+        return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
+    function updateTimerUI() {
+        if (matchState === 'INTRO') {
+            document.getElementById('phaseDisplay').innerText = `GET READY... ${introTimeLeft}`;
+            document.getElementById('phaseDisplay').style.color = "#f39c12";
+            document.getElementById('timeDisplay').innerText = "00:30"; // ค้างเวลาไว้ที่ 30
+            return;
+        }
+
+        if (matchState === 'STOPPED') {
+            document.getElementById('phaseDisplay').innerText = "READY TO START";
+            document.getElementById('phaseDisplay').style.color = "#3498db";
+            document.getElementById('timeDisplay').innerText = "00:30";
+            document.getElementById('globalTimeDisplay').innerText = "เวลาแข่งรวม: 2:38";
+            return;
+        }
+
+        // สถานะ RUNNING หรือ PAUSED
+        document.getElementById('timeDisplay').innerText = formatTime(phaseTimeLeft);
+        document.getElementById('globalTimeDisplay').innerText = "เวลาแข่งรวม: " + formatTime(globalTimeLeft);
+        
+        let phaseDisplay = document.getElementById('phaseDisplay');
+        if (currentPhaseIndex < phases.length) {
+            phaseDisplay.innerText = phases[currentPhaseIndex].name;
+            phaseDisplay.style.color = phases[currentPhaseIndex].color;
+        } else {
+            phaseDisplay.innerText = "MATCH OVER";
+            phaseDisplay.style.color = "#ff4757";
+            document.getElementById('timeDisplay').innerText = "00:00";
+        }
+    }
+
+    function tick() {
+        if (matchState === 'INTRO') {
+            introTimeLeft--;
+            if (introTimeLeft <= 0) {
+                matchState = 'RUNNING'; // หมดเวลาหน่วง สลับเข้าโหมดแข่งจริง
+            }
+            updateTimerUI();
+            return;
+        }
+
+        if (matchState === 'RUNNING') {
+            if (globalTimeLeft <= 0) {
+                clearInterval(timerInterval);
+                matchState = 'STOPPED';
+                currentPhaseIndex = phases.length;
+                updateTimerUI();
+                return;
+            }
+
+            globalTimeLeft--;
+            phaseTimeLeft--;
+
+            if (phaseTimeLeft < 0) {
+                currentPhaseIndex++;
+                if (currentPhaseIndex < phases.length) {
+                    phaseTimeLeft = phases[currentPhaseIndex].duration - 1;
+                }
+            }
+            updateTimerUI();
+        }
+    }
+
+    function startTimer() {
+        let matchAudio = document.getElementById('matchAudio');
+
+        // ถ้าเพิ่งเริ่มแมตช์ใหม่ (ยังไม่เคยกดเริ่ม)
+        if (matchState === 'STOPPED') {
+            matchState = 'INTRO';
+            introTimeLeft = introDelaySeconds;
+            
+            // เล่นเสียง
+            matchAudio.currentTime = 0;
+            matchAudio.play().catch(e => console.warn("ระบบเสียงต้องการให้คลิกหน้าจอก่อน", e));
+
+            // แสดงคำว่า GET READY ทันทีที่กด
+            updateTimerUI(); 
+            timerInterval = setInterval(tick, 1000);
+        }
+        // ถ้าเป็นการกด ต่อเวลา หลังจากกดหยุดไป
+        else if (matchState === 'PAUSED') {
+            matchState = 'RUNNING'; // ให้ข้าม Intro วิ่งเวลาต่อเลย
+            matchAudio.play().catch(e => console.warn(e));
+            timerInterval = setInterval(tick, 1000);
+        }
+    }
+
+    function pauseTimer() {
+        if (matchState === 'RUNNING' || matchState === 'INTRO') {
+            matchState = 'PAUSED';
+            clearInterval(timerInterval);
+            document.getElementById('matchAudio').pause();
+        }
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        matchState = 'STOPPED';
+        globalTimeLeft = 158;
+        currentPhaseIndex = 0;
+        phaseTimeLeft = phases[0].duration;
+        introTimeLeft = introDelaySeconds;
+
+        let matchAudio = document.getElementById('matchAudio');
+        matchAudio.pause();
+        matchAudio.currentTime = 0;
+
+        updateTimerUI();
+    }
+
+    // ---------------- SCORING LOGIC ----------------
+    let counts = {
+        autoGreen: 0, autoPurple: 0,
+        opGreen: 0, opPurple: 0,
+        endGreen: 0, endPurple: 0 
+    };
+
+    function updateScore(type, change) {
+        let newValue = counts[type] + change;
+        if (newValue < 0) return;
+
+        if (type === 'autoGreen' || type === 'autoPurple') {
+            if (change > 0 && (counts.autoGreen + counts.autoPurple) >= 6) {
+                alert("ยิงบอลรอบ Autonomous ครบโควตา 6 ลูกแล้วครับ");
+                return;
+            }
+        }
+
+        counts[type] = newValue;
+        document.getElementById(`val-${type}`).innerText = counts[type];
+        calculateScores();
+    }
+
+    function getRadioScore(radioName) {
+        let radios = document.getElementsByName(radioName);
+        for (let radio of radios) {
+            if (radio.checked) return parseInt(radio.value);
+        }
+        return 0;
+    }
+
+    function calculateScores() {
+        let totalAuto = (counts.autoGreen * 4) + (counts.autoPurple * 2);
+        document.getElementById('sub-auto').innerText = totalAuto;
+
+        let totalOp = (counts.opGreen * 2) + (counts.opPurple * 1);
+        document.getElementById('sub-op').innerText = totalOp;
+
+        let endBalls = (counts.endGreen * 2) + (counts.endPurple * 1);
+        let t1_end = getRadioScore('t1_parking');
+        let t2_end = getRadioScore('t2_parking');
+        let totalEnd = endBalls + t1_end + t2_end;
+        document.getElementById('sub-end').innerText = totalEnd;
+
+        let grandTotal = totalAuto + totalOp + totalEnd;
+        document.getElementById('totalScoreDisplay').innerText = grandTotal;
+    }
+
+    function resetMatch() {
+        if(confirm("Are you sure you want to reset the scores and timer for the next match?")) {
+            resetTimer();
+            for (let key in counts) {
+                counts[key] = 0;
+                document.getElementById(`val-${key}`).innerText = "0";
+            }
+            document.querySelectorAll('input[name="t1_parking"]')[0].checked = true;
+            document.querySelectorAll('input[name="t2_parking"]')[0].checked = true;
+            calculateScores();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+</script>
+
+</body>
+</html>
